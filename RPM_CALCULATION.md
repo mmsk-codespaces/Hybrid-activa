@@ -13,7 +13,7 @@ The hybrid drivetrain has two independent power sources, each with its own RPM s
 
 | Channel | Source | Sensor | Signal pin |
 |---|---|---|---|
-| EV (Hub Motor) | BLDC hub motor — 48 V | Hall effect (3-wire) | Arduino Mega Pin 2 (INT4) |
+| EV (Hub Motor) | BLDC hub motor — 48 V | Hall effect — one signal wire (Hall A) | Arduino Mega Pin 2 (INT4) |
 | IC (Engine) | Honda Activa 4G 125 cc CDI | Pickup (trigger) coil → R + D circuit | Arduino Mega Pin 3 (INT5) |
 
 The Arduino Mega 2560 measures both RPMs in real time and transmits them over UART2 (Serial3) to an ESP32 WiFi module every 1 second. The ESP32 serves a live HTML dashboard at `192.168.4.1` that displays both values and allows tuning of the hybrid switching thresholds.
@@ -24,15 +24,19 @@ The Arduino Mega 2560 measures both RPMs in real time and transmits them over UA
 
 ### 2.1 Signal Path
 
+The hub motor has three Hall sensors (A, B, C) for commutation. Only **one wire — Hall A** is tapped for RPM sensing. The other two (B, C) go only to the motor controller.
+
 ```
-Hub motor magnets (28 pole-pairs)
+Hub motor — 28 pole-pairs
         │
-        ▼
-Hall effect sensor (3-wire, 5 V)
-        │
-        ▼
-Arduino Mega Pin 2 — INT4 — RISING edge ISR
+        ├── Hall A signal ──► Arduino Mega Pin 2 (INT4) — RPM sensing
+        ├── Hall B signal ──► Motor controller only
+        ├── Hall C signal ──► Motor controller only
+        ├── Hall VCC  (5 V) ─► Motor controller 5 V rail
+        └── Hall GND  ───────► Common GND
 ```
+
+Because only one Hall wire is used, each magnet pole-pair produces **1 pulse**, giving **28 pulses per wheel revolution** (`PULSES_PER_REV = HALL_POLE_PAIRS = 28`). Using all three Halls would give 84 pulses/rev — the code supports both via a compile-time flag, but the single-wire configuration is active.
 
 ### 2.2 Constants
 
