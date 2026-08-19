@@ -1,0 +1,24 @@
+# PlatformIO build artifacts
+esp32s3_dashboard/platformio/.pio/
+esp32s3_dashboard/platformio/.vscode/
+
+# Arduino IDE temp files
+*.bak
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Unwanted project folders and files
+Other Unwanted Files/
+MIDC/
+image.png
+esp32s3_dashboard/image.png
+Hybrid_Activa_Block_Diagram.drawio
+
+# Old/archived code — not active
+atmega2560_controller/
+esp8266_dashboard_clean/
+controller change/bms_can_diag/
+controller change/mosfet_test/
